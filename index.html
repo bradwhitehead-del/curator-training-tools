@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Curator Training Tools</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --tag-bg: #eff6ff;
+      --tag-text: #2563eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p  { margin-top: 0.5rem; opacity: 0.85; font-size: 1rem; }
+
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      margin: -1.25rem auto 0;
+      padding: 0 1rem;
+      max-width: 560px;
+      position: relative;
+      z-index: 10;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 0.75rem 1.1rem;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar input:focus { border-color: var(--primary); }
+
+    main {
+      max-width: 960px;
+      margin: 2.5rem auto;
+      padding: 0 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+    /* VIDEO CARD */
+    .card-thumb {
+      background: #0f172a;
+      position: relative;
+      padding-top: 56.25%; /* 16:9 */
+      overflow: hidden;
+    }
+    .card-thumb video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-thumb .play-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.35);
+      transition: background 0.2s;
+    }
+    .card:hover .play-icon { background: rgba(0,0,0,0.15); }
+    .play-icon svg { width: 52px; height: 52px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+
+    /* DOC CARD */
+    .card-doc-icon {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    .card-body { padding: 1rem 1.1rem 1.2rem; }
+    .card-body h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .card-body p  { font-size: 0.85rem; color: var(--muted); }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.15rem 0.55rem;
+      border-radius: 99px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      margin-bottom: 0.5rem;
+    }
+    .card-tag.doc { background: #f0fdf4; color: #16a34a; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 14px;
+      max-width: 760px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h2 { font-size: 1rem; font-weight: 600; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.4rem; color: var(--muted); line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-video { background: black; }
+    .modal-video video { width: 100%; max-height: 420px; display: block; }
+    .modal-desc { padding: 1rem 1.25rem; color: var(--muted); font-size: 0.9rem; }
+
+    .no-results { text-align: center; color: var(--muted); padding: 3rem 0; font-size: 1rem; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.5rem; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Curator Training Tools</h1>
+  <p>Quick-reference guides and screen capture walkthroughs for the curator team</p>
+</header>
+
+<div class="search-bar">
+  <input type="text" id="search" placeholder="Search resources…" oninput="filterCards()" />
+</div>
+
+<main>
+
+  <!-- ── VIDEO SECTION ───────────────────────────────────── -->
+  <div id="video-section">
+    <p class="section-title">Video Walkthroughs</p>
+    <div class="grid" id="video-grid">
+
+      <!-- ════ ADD YOUR VIDEO CARDS BELOW ════
+           Copy one <div class="card"> block for each video.
+           Replace VIDEO_FILE, TITLE, and DESCRIPTION.
+      ════════════════════════════════════════ -->
+
+      <div class="card" onclick="openModal('videos/example-workflow.mp4','Example Workflow','A quick walkthrough of the standard curation workflow from start to finish.')">
+        <div class="card-thumb">
+          <video src="videos/example-workflow.mp4" muted preload="metadata"></video>
+          <div class="play-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="32" fill="white" fill-opacity="0.9"/>
+              <polygon points="26,20 50,32 26,44" fill="#2563eb"/>
+            </svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="card-tag">Video</span>
+          <h3>Example Workflow</h3>
+          <p>Standard curation workflow from start to finish.</p>
+        </div>
+      </div>
+
+      <!-- Add more video cards here -->
+
+    </div>
+  </div>
+
+  <!-- ── DOCUMENT SECTION ──────────────────────────────── -->
+  <div id="doc-section">
+    <p class="section-title">Documentation &amp; Guides</p>
+    <div class="grid" id="doc-grid">
+
+      <!-- ════ ADD YOUR DOC CARDS BELOW ════
+           Replace DOC_FILE, TITLE, and DESCRIPTION.
+           doc-icon emoji options: 📄 📋 📝 📑
+      ════════════════════════════════════════ -->
+
+      <a class="card" href="docs/curator-guidelines.pdf" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="card-doc-icon">📄</div>
+        <div class="card-body">
+          <span class="card-tag doc">Document</span>
+          <h3>Curator Guidelines</h3>
+          <p>Core policies and standards every curator should know.</p>
+        </div>
+      </a>
+
+      <!-- Add more document cards here -->
+
+    </div>
+  </div>
+
+</main>
+
+<!-- ── VIDEO MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-video">
+      <video id="modal-video" controls></video>
+    </div>
+    <div class="modal-desc" id="modal-desc"></div>
+  </div>
+</div>
+
+<footer>Curator Training Tools · Internal Use Only</footer>
+
+<script>
+  function openModal(src, title, desc) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-desc').textContent  = desc;
+    const v = document.getElementById('modal-video');
+    v.src = src;
+    v.load();
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('modal-video').pause();
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal')) closeModalDirect();
+  }
+
+  function filterCards() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>
